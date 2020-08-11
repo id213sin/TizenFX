@@ -49,6 +49,16 @@ namespace Tizen.NUI.BaseComponents
         });
         /// This will be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API.
         [EditorBrowsable(EditorBrowsableState.Never)]
+        public static readonly BindableProperty FontSelectorProperty = BindableProperty.Create("FontSelector", typeof(Selector<Font>), typeof(TextLabelStyle), null, propertyChanged: (bindable, oldValue, newValue) =>
+        {
+            ((TextLabelStyle)bindable).fontSelector = ((Selector<Font>)newValue)?.Clone();
+        },
+        defaultValueCreator: (bindable) =>
+        {
+            return ((TextLabelStyle)bindable).fontSelector;
+        });
+        /// This will be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API.
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public static readonly BindableProperty FontFamilySelectorProperty = BindableProperty.Create("FontFamilySelector", typeof(Selector<string>), typeof(TextLabelStyle), null, propertyChanged: (bindable, oldValue, newValue) =>
         {
             ((TextLabelStyle)bindable).fontFamilySelector = ((Selector<string>)newValue)?.Clone();
@@ -311,6 +321,7 @@ namespace Tizen.NUI.BaseComponents
         private VerticalLineAlignment? verticalLineAlignment;
         private bool? matchSystemLanguageDirection;
         private Selector<string> translatableTextSelector;
+        private Selector<Font> fontSelector;
         private Selector<string> fontFamilySelector;
         private Selector<string> textSelector;
         private Selector<Color> textColorSelector;
@@ -346,6 +357,18 @@ namespace Tizen.NUI.BaseComponents
                 return (null != tmp) ? tmp : translatableTextSelector = new Selector<string>();
             }
             set => SetValue(TranslatableTextSelectorProperty, value);
+        }
+
+        /// This will be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API.
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public Selector<Font> Font
+        {
+            get
+            {
+                Selector<Font> tmp = (Selector<Font>)GetValue(FontSelectorProperty);
+                return (null != tmp) ? tmp : fontSelector = new Selector<Font>();
+            }
+            set => SetValue(FontSelectorProperty, value);
         }
 
         /// This will be public opened in tizen_6.0 after ACR done. Before ACR, need to be hidden as inhouse API.

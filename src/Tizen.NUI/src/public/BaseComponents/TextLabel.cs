@@ -79,6 +79,40 @@ namespace Tizen.NUI.BaseComponents
         private string textLabelSid = null;
         private bool systemlangTextFlag = false;
         private TextLabelSelectorData selectorData;
+        private Font font = null;
+        private Font currentFont = null;
+        private bool fontDirtyFlag = true;
+
+        private string getStyleFamilyName()
+        {
+            return Style?.FontFamily.Normal;
+        }
+
+        private float? getStylePointSize()
+        {
+            return Style?.PointSize?.Normal;
+        }
+
+        private float? getStylePixelSize()
+        {
+            // FIXME: Why pixelSize isn't a Selector type variable?
+            return Style?.PixelSize;
+        }
+
+        private FontWeightType getStyleFontWeight()
+        {
+            return FontWeightType.Normal;
+        }
+
+        private FontWidthType getStyleFontWidth()
+        {
+            return FontWidthType.Normal;
+        }
+
+        private FontSlantType getStyleFontSlant()
+        {
+            return FontSlantType.Normal;
+        }
 
         /// <summary>
         /// Return a copied Style instance of the TextLabel.
@@ -255,6 +289,7 @@ namespace Tizen.NUI.BaseComponents
             }
             set
             {
+                fontDirtyFlag = true;
                 SetValue(FontFamilyProperty, value);
                 selectorData?.FontFamily.UpdateIfNeeds(this, value);
                 NotifyPropertyChangedAndRequestLayout();
@@ -274,6 +309,7 @@ namespace Tizen.NUI.BaseComponents
             }
             set
             {
+                fontDirtyFlag = true;
                 SetValue(FontStyleProperty, value);
                 NotifyPropertyChangedAndRequestLayout();
             }
@@ -292,9 +328,105 @@ namespace Tizen.NUI.BaseComponents
             }
             set
             {
+                fontDirtyFlag = true;
                 SetValue(PointSizeProperty, value);
                 selectorData?.PointSize.UpdateIfNeeds(this, value);
                 NotifyPropertyChangedAndRequestLayout();
+            }
+        }
+
+        /// <summary>
+        /// The Font property.<br />
+        /// The requested font to use.<br />
+        /// Any null or None property will be retrieved from Normal state of TextLabelStyle.<br />
+        /// </summary>
+        /// <since_tizen> 6 </since_tizen>
+        public Font Font
+        {
+            set
+            {
+                if (this.font == value)
+                {
+                    return;
+                }
+
+                this.font = value;
+                if (this.font == null)
+                {
+                    // TODO: Need to restore proper font properties from a TextLabelStyle.
+                    return;
+                }
+
+                string familyName = ((this.font.FamilyName == null) ? getStyleFamilyName() : this.font.FamilyName);
+                float? size = null;
+                FontSizeUnit sizeUnit;
+                if (this.font.Size == null)
+                {
+                    size = getStylePointSize();
+                    if (size != null)
+                    {
+                        sizeUnit = FontSizeUnit.Point;
+                    }
+                    else
+                    {
+                        size = getStylePixelSize();
+                        sizeUnit = FontSizeUnit.Pixel;
+                    }
+                }
+                else
+                {
+                    size = (float)this.font.Size;
+                    sizeUnit = this.font.SizeUnit;
+                }
+                FontWeightType weightType = ((this.font.Weight == FontWeightType.None) ? getStyleFontWeight() : this.font.Weight);
+                FontWidthType widthType = ((this.font.Width == FontWidthType.None) ? getStyleFontWidth() : this.font.Width);
+                FontSlantType slantType = ((this.font.Slant == FontSlantType.None) ? getStyleFontSlant() : this.font.Slant);
+
+                PropertyMap styleMap = new PropertyMap();
+                styleMap.Add("weight", new PropertyValue(weightType.ToString()));
+                styleMap.Add("width", new PropertyValue(widthType.ToString()));
+                styleMap.Add("slant", new PropertyValue(slantType.ToString()));
+
+                SetValue(FontFamilyProperty, familyName);
+                selectorData?.FontFamily.UpdateIfNeeds(this, familyName);
+                if (sizeUnit == FontSizeUnit.Point)
+                {
+                    SetValue(PointSizeProperty, size);
+                    selectorData?.PointSize.UpdateIfNeeds(this, size);
+                }
+                else
+                {
+                    SetValue(PixelSizeProperty, size);
+                }
+
+                SetValue(FontStyleProperty, styleMap);
+                fontDirtyFlag = true;
+
+                NotifyPropertyChangedAndRequestLayout();
+            }
+            get
+            {
+                return this.font;
+            }
+        }
+
+        /// <summary>
+        /// The CurrentFont property.<br />
+        /// The effective font which is being used.<br />
+        /// </summary>
+        /// <since_tizen> 6 </since_tizen>
+        public Font CurrentFont
+        {
+            get
+            {
+                if ((this.currentFont == null) || (this.fontDirtyFlag == true))
+                {
+                    FontSizeUnit sizeUnit = ((this.font == null) ? FontSizeUnit.Point : this.font.SizeUnit);
+                    float? size = ((sizeUnit == FontSizeUnit.Point) ? (float?)GetValue(PointSizeProperty) : (float?)GetValue(PixelSizeProperty));
+                    this.currentFont = new Font((string)GetValue(FontFamilyProperty), size, sizeUnit, (PropertyMap)GetValue(FontStyleProperty));
+                    this.fontDirtyFlag = false;
+                }
+                return this.currentFont;
             }
         }
 
@@ -743,6 +875,7 @@ namespace Tizen.NUI.BaseComponents
             }
             set
             {
+                fontDirtyFlag = true;
                 SetValue(PixelSizeProperty, value);
                 NotifyPropertyChangedAndRequestLayout();
             }
@@ -905,6 +1038,7 @@ namespace Tizen.NUI.BaseComponents
             }
             set
             {
+                fontDirtyFlag = true;
                 SetValue(TextFitProperty, value);
                 NotifyPropertyChanged();
             }
@@ -1009,6 +1143,7 @@ namespace Tizen.NUI.BaseComponents
         /// </summary>
         protected override void OnBindingContextChanged()
         {
+            fontDirtyFlag = true;
             base.OnBindingContextChanged();
         }
 

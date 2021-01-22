@@ -165,6 +165,18 @@ namespace Tizen.NUI
             if (NDalicPINVOKE.SWIGPendingException.Pending) throw NDalicPINVOKE.SWIGPendingException.Retrieve();
         }
 
+        /// <summary>
+        /// Disable the font size change feature when the StyleManager applies a style.
+        /// It is hidden as inhouse API.
+        /// </summary>
+        /// <param name="disable">The disable flag.</param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void DisableFontSizeChange(bool disable)
+        {
+            Interop.StyleManager.DisableFontSizeChange(SwigCPtr, disable);
+            if (NDalicPINVOKE.SWIGPendingException.Pending) throw NDalicPINVOKE.SWIGPendingException.Retrieve();
+        }
+
         internal static global::System.Runtime.InteropServices.HandleRef getCPtr(StyleManager obj)
         {
             return (obj == null) ? new global::System.Runtime.InteropServices.HandleRef(null, global::System.IntPtr.Zero) : obj.SwigCPtr;

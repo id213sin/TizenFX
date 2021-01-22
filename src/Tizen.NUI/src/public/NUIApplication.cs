@@ -377,6 +377,7 @@ namespace Tizen.NUI
         protected override void OnCreate()
         {
             base.OnCreate();
+            StyleManager.Instance.DisableFontSizeChange(true);
         }
 
         /// <summary>
